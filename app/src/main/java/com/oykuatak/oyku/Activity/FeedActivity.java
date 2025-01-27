@@ -37,6 +37,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.oykuatak.oyku.Adapter.BlogAdapter;
 import com.oykuatak.oyku.Adapter.MessageRequestsAdapter;
+import com.oykuatak.oyku.Fragment.FeedFragment;
 import com.oykuatak.oyku.Fragment.MessageFragment;
 import com.oykuatak.oyku.Fragment.ProfileFragment;
 import com.oykuatak.oyku.Fragment.UsersFragment;
@@ -54,234 +55,107 @@ import java.util.Map;
 
 public class FeedActivity extends AppCompatActivity {
 
-    private UsersFragment usersFragment;
-    private ProfileFragment profileFragment;
-    private MessageFragment messageFragment;
-    ArrayList<Blog> blogList;
-    private ActivityFeedBinding binding;
-    private FirebaseAuth auth;
-    private FirebaseFirestore firebaseFirestore;
     private BottomNavigationView bottomView;
-    private FragmentTransaction transaction;
-    private Toolbar toolbar;
-    private RelativeLayout relaNoti;
-    private TextView textNotiNumber;
-    private FirebaseFirestore firestore;
-    private Query query;
-    private FirebaseUser mUser;
-    private MessageRequest mMessageRequest;
-    private ArrayList<MessageRequest> messageRequestArrayList;
-
+    private FirebaseAuth auth;
     private Dialog messageRequestsDialog;
-    private ImageView messageRequestClose;
     private RecyclerView messageRequestsRecyclerView;
     private MessageRequestsAdapter adapter;
-    private DocumentReference ref;
-    private User user;
-
-    private BlogAdapter blogAdapter;
-
+    private ArrayList<MessageRequest> messageRequestArrayList;
+    private User user; // Kullanıcı bilgilerini tutar
+    private View messageRequestClose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityFeedBinding.inflate(getLayoutInflater());
-        View view = binding.getRoot();
-        setContentView(view);
+        setContentView(R.layout.activity_feed);
 
-        firestore = FirebaseFirestore.getInstance();
-        mUser = FirebaseAuth.getInstance().getCurrentUser();
+        // Firebase Auth başlat
+        auth = FirebaseAuth.getInstance();
 
-        ref = firestore.collection("Users").document(mUser.getUid());
-        ref.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists())
-                    user= documentSnapshot.toObject(User.class);
-            }
-        });
-
-        messageRequestArrayList = new ArrayList<>();
-
-        toolbar = (Toolbar)findViewById(R.id.bar);
-        relaNoti = (RelativeLayout)findViewById(R.id.toolbar_layout_relaNoti);
-        textNotiNumber = (TextView)findViewById(R.id.toolbar_notiNumber);
-
+        // Toolbar başlat
+        Toolbar toolbar = findViewById(R.id.bar);
         setSupportActionBar(toolbar);
-        blogList = new ArrayList<>();
-        usersFragment = new UsersFragment();
-        profileFragment =new ProfileFragment();
-        messageFragment = new MessageFragment();
 
+        // Varsayılan olarak FeedFragment'i başlat
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, new FeedFragment())
+                .commit();
 
-        firebaseFirestore=FirebaseFirestore.getInstance();
-        auth=FirebaseAuth.getInstance();
-
-        // Blog listesi ve adapter
-        blogList = new ArrayList<>();
-        blogAdapter = new BlogAdapter(blogList); // BlogAdapter başlatılıyor
-
-        // RecyclerView ayarları
-        RecyclerView recyclerView = findViewById(R.id.feed_activity); // XML'deki RecyclerView ID'si
-        recyclerView.setLayoutManager(new LinearLayoutManager(this)); // Dikey düzenleme
-        recyclerView.setAdapter(blogAdapter); // Adapter'ı RecyclerView'a bağlama
-
-        getData();
-
-        query = firestore.collection("MessageRequests").document(mUser.getUid()).collection("Requests");
-        query.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error!=null){
-                    Toast.makeText(FeedActivity.this,error.getMessage(),Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if (value!=null){
-                    textNotiNumber.setText(String.valueOf(value.getDocuments().size()));
-                    messageRequestArrayList.clear();
-
-                    for (DocumentSnapshot snapshot:value.getDocuments()){
-                        mMessageRequest = snapshot.toObject(MessageRequest.class);
-                        messageRequestArrayList.add(mMessageRequest);
-                    }
-
-                }
-            }
-        });
-        //bildirime tıklanınca
-        relaNoti.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                messageRequestsDialog();
-            }
-        });
-
-
-        //menu1 için
-        bottomView = (BottomNavigationView)findViewById(R.id.feed_activity_bottomView);
+        // Bottom Navigation View başlat
+        bottomView = findViewById(R.id.feed_activity_bottomView);
         bottomView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment selectedFragment = null;
+
                 if (item.getItemId() == R.id.people) {
-                    relaNoti.setVisibility(View.INVISIBLE);
-                    setFragment(usersFragment);
-                    return true;
+                    selectedFragment = new UsersFragment();
                 } else if (item.getItemId() == R.id.message) {
-                    relaNoti.setVisibility(View.VISIBLE);
-                    setFragment(messageFragment);
-                    return true;
+                    selectedFragment = new MessageFragment();
                 } else if (item.getItemId() == R.id.profile) {
-                    relaNoti.setVisibility(View.INVISIBLE);
-                    setFragment(profileFragment);
-                    return true;
-                } else {
-                    return false;
+                    selectedFragment = new ProfileFragment();
+                } else if (item.getItemId() == R.id.feed) {
+                    selectedFragment = new FeedFragment();
                 }
 
+                if (selectedFragment != null) {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, selectedFragment)
+                            .commit();
+                }
+
+                return true;
             }
         });
     }
-
-    private void getData() {
-        firebaseFirestore.collection("Posts").addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Toast.makeText(FeedActivity.this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-                if (value != null) {
-                    blogList.clear(); // Listeyi temizleyerek güncel verilerle doldur
-                    for (DocumentSnapshot document : value.getDocuments()) {
-                        Map<String, Object> data = document.getData();
-                        String title = (String) data.get("title"); // Başlık
-                        String description = (String) data.get("description"); // Açıklama
-                        String imageUrl = (String) data.get("imageUrl"); // Fotoğraf URL'si
-                        String userEmail = (String) data.get("userEmail"); // Kullanıcı email adresi
-
-                        // Zaman damgasını insan tarafından okunabilir formata çevir
-                        Object timestampObj = data.get("timestamp");
-                        String timestampFormatted = "";
-                        if (timestampObj instanceof com.google.firebase.Timestamp) {
-                            com.google.firebase.Timestamp timestamp = (com.google.firebase.Timestamp) timestampObj;
-                            Date date = timestamp.toDate();
-
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault());
-                            timestampFormatted = dateFormat.format(date);
-                        }
-
-                        // Blog nesnesine ekle
-                        Blog blog = new Blog(userEmail, title, description, imageUrl, timestampFormatted);
-                        blogList.add(blog);
-                    }
-
-                    // RecyclerView veya ListView adaptörüne değişiklikleri bildirin (örneğin notifyDataSetChanged)
-                    blogAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-    }
-
-
-
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu, menu);
-
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
-        if (item.getItemId()==R.id.add_blog){
+        if (item.getItemId() == R.id.add_blog) {
             Intent intentToUpload = new Intent(FeedActivity.this, UploadActivity.class);
             startActivity(intentToUpload);
-
-        } else if (item.getItemId()==R.id.logout) {
+        } else if (item.getItemId() == R.id.logout) {
             auth.signOut();
             Intent intentToMain = new Intent(FeedActivity.this, MainActivity.class);
             startActivity(intentToMain);
             finish();
-
-
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 
-    private void setFragment(Fragment fragment){
-        transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.feed_activity,fragment);
-        transaction.commit();
-    }
+    private void messageRequestsDialog() {
+        // Dialog'u başlat
+        messageRequestsDialog = new Dialog(this, android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen);
+        messageRequestsDialog.setContentView(R.layout.custom_dialog_incoming_message_requests);
 
-    private void messageRequestsDialog(){
-         messageRequestsDialog = new Dialog(this,android.R.style.Theme_DeviceDefault_Light_NoActionBar_Fullscreen);
-         messageRequestsDialog.setContentView(R.layout.custom_dialog_incoming_message_requests);
+        // Dialog bileşenlerini tanımla
+        messageRequestClose = messageRequestsDialog.findViewById(R.id.custom_dialog_incoming_message_requests_imgClose);
+        messageRequestsRecyclerView = messageRequestsDialog.findViewById(R.id.custom_dialog_incoming_message_requests_recyclerView);
 
-         messageRequestClose = messageRequestsDialog.findViewById(R.id.custom_dialog_incoming_message_requests_imgClose);
-         messageRequestsRecyclerView = messageRequestsDialog.findViewById(R.id.custom_dialog_incoming_message_requests_recyclerView);
+        // Kapatma butonuna tıklama işlevi
+        messageRequestClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                messageRequestsDialog.dismiss();
+            }
+        });
 
-         messageRequestClose.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
-                 messageRequestsDialog.dismiss();
-             }
-         });
-
+        // RecyclerView ayarları
         messageRequestsRecyclerView.setHasFixedSize(true);
-        messageRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false));
-        if (messageRequestArrayList.size()>0){
-            adapter= new MessageRequestsAdapter(messageRequestArrayList,this,user.getUserId(),user.getUserName(),user.getUserProfile());
+        messageRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+
+        // Adapter'ı ayarla (messageRequestArrayList daha önce doldurulmuş olmalı)
+        if (messageRequestArrayList.size() > 0 && user != null) {
+            adapter = new MessageRequestsAdapter(messageRequestArrayList, this, user.getUserId(), user.getUserName(), user.getUserProfile());
             messageRequestsRecyclerView.setAdapter(adapter);
         }
+
         messageRequestsDialog.show();
     }
 }
