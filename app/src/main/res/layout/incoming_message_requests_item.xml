@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:contentPadding="8dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="77dp"
+            android:layout_height="77dp"
+            android:id="@+id/incoming_message_requests_item_imgProfile"
+            app:civ_border_width="2dp"
+            app:civ_border_color="@color/black"
+            ></de.hdodenhof.circleimageview.CircleImageView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/incoming_message_requests_item_textMessage"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@+id/incoming_message_requests_item_linear"
+            android:layout_toRightOf="@id/incoming_message_requests_item_imgProfile"
+            android:text="...Adlı Kullanıcı Size Mesaj İsteğinde Bulundu"
+            ></TextView>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/incoming_message_requests_item_linear"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:id="@+id/incoming_message_requests_item_imgClose"
+                android:src="@drawable/ic_close"
+                app:tint="#D11818"></ImageView>
+
+            <ImageView
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:id="@+id/incoming_message_requests_item_imgCheck"
+                android:layout_marginLeft="15dp"
+                android:src="@drawable/ic_check"
+                ></ImageView>
+
+
+        </LinearLayout>
+    </RelativeLayout>
+
+
+
+
+</androidx.cardview.widget.CardView>

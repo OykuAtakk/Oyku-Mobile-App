@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:contentPadding="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:id="@+id/user_item_imgUserProfile"
+            android:background="@android:color/white"
+            app:civ_border_width="3dp"
+            app:civ_border_color="@android:color/black"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/user_item_text"
+            android:textSize="17sp"
+            android:text="UserText"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="5dp"
+            android:textColor="@color/black"
+            android:layout_toLeftOf="@id/user_item_giris_yon"
+            android:layout_toRightOf="@id/user_item_imgUserProfile"
+            android:textStyle="bold"></TextView>
+
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:id="@+id/user_item_giris_yon"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/giris_yon"></ImageView>
+
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
