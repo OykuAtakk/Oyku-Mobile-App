@@ -58,12 +58,12 @@ public class UsersFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext(), LinearLayoutManager.VERTICAL, false));
 
-        mRef = firestore.collection("users").document(user.getUid());
+        mRef = firestore.collection("Users").document(user.getUid());
         mRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
                 mKullanici = documentSnapshot.toObject(User.class);
 
-                query = firestore.collection("users");
+                query = firestore.collection("Users");
                 query.addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Toast.makeText(v.getContext(), error.getMessage(), Toast.LENGTH_SHORT).show();

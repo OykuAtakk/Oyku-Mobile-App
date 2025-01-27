@@ -149,43 +149,55 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserHolder> {
             public void onClick(View v) {
                 textMessage = editMessage.getText().toString();
 
-                if (!TextUtils.isEmpty(textMessage)){
-                    //Mesaj Gönderme İşlemi
+                if (!TextUtils.isEmpty(textMessage)) {
+                    // Mesaj Gönderme İşlemiq
                     channelId = UUID.randomUUID().toString();
-                    messageRequest = new MessageRequest(channelId,UID,name,profileUrl);
-                    firestore.collection("MessageRequests").document(user.getUserId())
-                            .collection("Requests").document(UID)
-                            .set(messageRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    messageRequest = new MessageRequest(channelId, UID, name, profileUrl);
+
+                    // Kullanıcının Channel koleksiyonuna mesaj isteği ekleniyor
+                    firestore.collection("Users").document(user.getUserId())
+                            .collection("Channel").document(UID)
+                            .set(messageRequest)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        //Chat
+                                    if (task.isSuccessful()) {
+                                        // Chat işlemleri
                                         messageDocId = UUID.randomUUID().toString();
                                         mData = new HashMap<>();
-                                        mData.put("mesajIcerigi",textMessage);
+                                        mData.put("mesajIcerigi", textMessage);
                                         mData.put("gonderen", UID);
                                         mData.put("alici", user.getUserId());
                                         mData.put("MesajTarihi", FieldValue.serverTimestamp());
-                                        mData.put("docId",messageDocId);
+                                        mData.put("docId", messageDocId);
 
-                                        firestore.collection("ChatChannels").document(channelId).collection("Messages")
-                                                .document(messageDocId).set(mData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        firestore.collection("ChatChannels").document(channelId)
+                                                .collection("Messages").document(messageDocId)
+                                                .set(mData)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()){
-                                                            Toast.makeText(context,"Mesaj İsteğiniz Başarıyla İletildi",Toast.LENGTH_SHORT).show();
+                                                        if (task.isSuccessful()) {
+                                                            Toast.makeText(context, "Mesaj İsteğiniz Başarıyla İletildi", Toast.LENGTH_SHORT).show();
                                                             if (messageDialog.isShowing())
                                                                 messageDialog.dismiss();
-                                                        }else Toast.makeText(context,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+                                                        } else {
+                                                            Toast.makeText(context, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
                                                     }
                                                 });
+                                    } else {
+                                        Toast.makeText(context, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
 
-                }else Toast.makeText(context, "Boş Mesaj Gönderemezsiniz!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(context, "Boş Mesaj Gönderemezsiniz!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
         window.setLayout(ActionBar.LayoutParams.WRAP_CONTENT,ActionBar.LayoutParams.WRAP_CONTENT);
         messageDialog.show();
 

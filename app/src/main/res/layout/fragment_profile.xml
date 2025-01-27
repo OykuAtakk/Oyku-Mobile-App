@@ -42,7 +42,7 @@
         android:textColor="@color/black"
         android:enabled="false"
         android:id="@+id/profile_fragment_editName"
-        android:text="KULLANICI ADI"
+
         ></EditText>
     <EditText
         android:layout_width="match_parent"
@@ -54,7 +54,7 @@
         android:textStyle="bold"
         android:textColor="@color/black"
         android:enabled="false"
-        android:text="KULLANICI EMAİLİ"
+
         android:id="@+id/profile_fragment_editEmail"
         ></EditText>
 

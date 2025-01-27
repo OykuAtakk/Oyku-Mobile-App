@@ -1,7 +1,7 @@
 package com.oykuatak.oyku.Activity;
 
 import androidx.annotation.NonNull;
-
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.widget.Toolbar;
@@ -20,11 +20,18 @@ import android.view.View;
 
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
-
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.oykuatak.oyku.Adapter.MessageRequestsAdapter;
 import com.oykuatak.oyku.Fragment.FeedFragment;
 import com.oykuatak.oyku.Fragment.MessageFragment;
@@ -41,6 +48,9 @@ public class FeedActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomView;
     private FirebaseAuth auth;
+    private FirebaseFirestore firestore;
+    private Query query;
+    private FirebaseUser mUser;
     private Dialog messageRequestsDialog;
     private RecyclerView messageRequestsRecyclerView;
     private MessageRequestsAdapter adapter;
@@ -49,14 +59,17 @@ public class FeedActivity extends AppCompatActivity {
     private View messageRequestClose;
     private RelativeLayout relaNoti;
     private TextView textNotiNumber;
+    private MessageRequest mMessageRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_feed);
 
-        // Firebase Auth başlat
+        // Firebase başlat
         auth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
+        mUser = auth.getCurrentUser();
 
         // Toolbar başlat
         Toolbar toolbar = findViewById(R.id.bar);
@@ -65,6 +78,27 @@ public class FeedActivity extends AppCompatActivity {
         // Bildirim bileşenlerini başlat
         relaNoti = findViewById(R.id.toolbar_layout_relaNoti);
         textNotiNumber = findViewById(R.id.toolbar_notiNumber);
+
+        // Bildirim için Firestore sorgusu
+        query = firestore.collection("MessageRequests").document(mUser.getUid()).collection("Requests");
+        query.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Toast.makeText(FeedActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (value != null) {
+                    textNotiNumber.setText(String.valueOf(value.getDocuments().size()));
+                    messageRequestArrayList.clear();
+
+                    for (DocumentSnapshot snapshot : value.getDocuments()) {
+                        mMessageRequest = snapshot.toObject(MessageRequest.class);
+                        messageRequestArrayList.add(mMessageRequest);
+                    }
+                }
+            }
+        });
 
         // Bildirim butonuna tıklama işlevi
         relaNoti.setVisibility(View.VISIBLE); // Görünür hale getir
@@ -109,7 +143,6 @@ public class FeedActivity extends AppCompatActivity {
 
         // Örnek olarak boş bir mesaj istek listesi oluştur
         messageRequestArrayList = new ArrayList<>();
-
     }
 
     @Override
@@ -161,14 +194,5 @@ public class FeedActivity extends AppCompatActivity {
         }
 
         messageRequestsDialog.show();
-    }
-
-    private void updateNotificationCount(int count) {
-        if (count > 0) {
-            textNotiNumber.setText(String.valueOf(count));
-            textNotiNumber.setVisibility(View.VISIBLE);
-        } else {
-            textNotiNumber.setVisibility(View.GONE);
-        }
     }
 }

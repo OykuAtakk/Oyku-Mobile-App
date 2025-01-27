@@ -59,7 +59,7 @@ public class SignUpActivity extends AppCompatActivity {
                         user = new User(name, email, fUser.getUid(), "default");
 
                         // Store the user data in the Firestore "users" collection
-                        firestore.collection("users").document(fUser.getUid())
+                        firestore.collection("Users").document(fUser.getUid())
                                 .set(user).addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {

@@ -62,31 +62,45 @@ public class MessageRequestsAdapter extends RecyclerView.Adapter<MessageRequests
         holder.imgCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPos= holder.getAdapterPosition();
-                if (mPos!= RecyclerView.NO_POSITION){
-                    newMessageRequest = new MessageRequest(mMessageRequestsList.get(mPos).getChannelId(),mMessageRequestsList.get(mPos).getUserId(),
-                            mMessageRequestsList.get(mPos).getUserName(),mMessageRequestsList.get(mPos).getUserProfile());
+                mPos = holder.getAdapterPosition();
+                if (mPos != RecyclerView.NO_POSITION) {
+                    newMessageRequest = new MessageRequest(
+                            mMessageRequestsList.get(mPos).getChannelId(),
+                            mMessageRequestsList.get(mPos).getUserId(),
+                            mMessageRequestsList.get(mPos).getUserName(),
+                            mMessageRequestsList.get(mPos).getUserProfile()
+                    );
 
-                    firestore.collection("Users").document(UID).collection("Channel").document(mMessageRequestsList.get(mPos).getUserId())
+                    firestore.collection("Users").document(UID)
+                            .collection("Channel").document(mMessageRequestsList.get(mPos).getUserId())
                             .set(newMessageRequest)
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()){
-                                        newMessageRequest = new MessageRequest(mMessageRequestsList.get(mPos).getChannelId(),UID,name,profileUrl);
+                                    if (task.isSuccessful()) {
+                                        newMessageRequest = new MessageRequest(
+                                                mMessageRequestsList.get(mPos).getChannelId(),
+                                                UID,
+                                                name,
+                                                profileUrl
+                                        );
 
-                                        firestore.collection("Users").document(mMessageRequestsList.get(mPos).getUserId()).collection("Channel").document(UID)
-                                                .set(newMessageRequest).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        firestore.collection("Users").document(mMessageRequestsList.get(mPos).getUserId())
+                                                .collection("Channel").document(UID)
+                                                .set(newMessageRequest)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful())
-                                                            delete(mMessageRequestsList.get(mPos).getUserId(),"Mesaj İsteği Başarıyla Kabul Edildi.");
-                                                        else Toast.makeText(mContext,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-
+                                                        if (task.isSuccessful()) {
+                                                            delete(mMessageRequestsList.get(mPos).getUserId(), "Mesaj İsteği Başarıyla Kabul Edildi.");
+                                                        } else {
+                                                            Toast.makeText(mContext, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                                        }
                                                     }
                                                 });
-                                    }else Toast.makeText(mContext,task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-
+                                    } else {
+                                        Toast.makeText(mContext, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
                 }
