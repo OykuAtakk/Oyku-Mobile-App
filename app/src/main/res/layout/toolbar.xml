@@ -7,15 +7,6 @@
     android:paddingStart="8dp"
     android:paddingEnd="8dp">
 
-    <!-- Sol tarafa yerleştirilen ImageView -->
-    <ImageView
-        android:id="@+id/toolbar_imgNoti"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_noti"
-        android:layout_gravity="start"
-        android:contentDescription="Notification Icon" />
-
     <!-- Ortadaki başlık -->
     <TextView
         android:layout_width="wrap_content"

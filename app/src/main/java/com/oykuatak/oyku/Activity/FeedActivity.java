@@ -1,12 +1,12 @@
 package com.oykuatak.oyku.Activity;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,41 +17,25 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.oykuatak.oyku.Adapter.BlogAdapter;
+
 import com.oykuatak.oyku.Adapter.MessageRequestsAdapter;
 import com.oykuatak.oyku.Fragment.FeedFragment;
 import com.oykuatak.oyku.Fragment.MessageFragment;
 import com.oykuatak.oyku.Fragment.ProfileFragment;
 import com.oykuatak.oyku.Fragment.UsersFragment;
-import com.oykuatak.oyku.Model.Blog;
+
 import com.oykuatak.oyku.Model.MessageRequest;
 import com.oykuatak.oyku.Model.User;
 import com.oykuatak.oyku.R;
-import com.oykuatak.oyku.databinding.ActivityFeedBinding;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
 
 public class FeedActivity extends AppCompatActivity {
 
@@ -63,6 +47,8 @@ public class FeedActivity extends AppCompatActivity {
     private ArrayList<MessageRequest> messageRequestArrayList;
     private User user; // Kullanıcı bilgilerini tutar
     private View messageRequestClose;
+    private RelativeLayout relaNoti;
+    private TextView textNotiNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +61,19 @@ public class FeedActivity extends AppCompatActivity {
         // Toolbar başlat
         Toolbar toolbar = findViewById(R.id.bar);
         setSupportActionBar(toolbar);
+
+        // Bildirim bileşenlerini başlat
+        relaNoti = findViewById(R.id.toolbar_layout_relaNoti);
+        textNotiNumber = findViewById(R.id.toolbar_notiNumber);
+
+        // Bildirim butonuna tıklama işlevi
+        relaNoti.setVisibility(View.VISIBLE); // Görünür hale getir
+        relaNoti.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                messageRequestsDialog(); // Tıklandığında dialogu göster
+            }
+        });
 
         // Varsayılan olarak FeedFragment'i başlat
         getSupportFragmentManager().beginTransaction()
@@ -107,7 +106,12 @@ public class FeedActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        // Örnek olarak boş bir mesaj istek listesi oluştur
+        messageRequestArrayList = new ArrayList<>();
+
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -157,5 +161,14 @@ public class FeedActivity extends AppCompatActivity {
         }
 
         messageRequestsDialog.show();
+    }
+
+    private void updateNotificationCount(int count) {
+        if (count > 0) {
+            textNotiNumber.setText(String.valueOf(count));
+            textNotiNumber.setVisibility(View.VISIBLE);
+        } else {
+            textNotiNumber.setVisibility(View.GONE);
+        }
     }
 }
