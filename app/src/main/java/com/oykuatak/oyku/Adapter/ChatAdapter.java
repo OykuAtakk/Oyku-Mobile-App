@@ -50,13 +50,15 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     @Override
     public void onBindViewHolder(@NonNull ChatHolder holder, int position) {
         chat = chatList.get(position);
-        holder.textMessage.setText(chat.getMessageIcerigi());
-        if (!chat.getGonderen().equals(mUID)){
-            if (targetProfile.equals("default"))
-                holder.imgProfile.setImageResource(R.mipmap.ic_launcher);
-            else Picasso.get().load(targetProfile).resize(56,56).into(holder.imgProfile);
+        if (chat != null && chat.getMessageIcerigi() != null) {
+            holder.textMessage.setText(chat.getMessageIcerigi());
+            if (!chat.getGonderen().equals(mUID)) {
+                if (targetProfile.equals("default"))
+                    holder.imgProfile.setImageResource(R.mipmap.ic_launcher);
+                else
+                    Picasso.get().load(targetProfile).resize(56, 56).into(holder.imgProfile);
+            }
         }
-
     }
 
     @Override

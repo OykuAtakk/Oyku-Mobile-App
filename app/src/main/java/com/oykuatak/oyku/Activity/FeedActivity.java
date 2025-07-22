@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -70,6 +71,29 @@ public class FeedActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         mUser = auth.getCurrentUser();
+
+        if (mUser != null) {
+            // Firestore'dan kullanıcı bilgilerini al
+            firestore.collection("Users")
+                    .document(mUser.getUid()) // Kullanıcının UID'sini kullanarak dökümanı seç
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Document'ı User nesnesine dönüştür
+                            this.user = documentSnapshot.toObject(User.class);
+                            if (user != null) {
+                                Log.d("UserInfo", "Kullanıcı bilgileri alındı: " + user.getUserName());
+                            }
+                        } else {
+                            Log.d("UserInfo", "Kullanıcı bilgileri Firestore'da bulunamadı.");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("FirestoreError", "Kullanıcı bilgileri alınırken hata oluştu: " + e.getMessage());
+                    });
+        } else {
+            Log.e("AuthError", "Kullanıcı oturumu bulunamadı.");
+        }
 
         // Toolbar başlat
         Toolbar toolbar = findViewById(R.id.bar);
@@ -188,7 +212,7 @@ public class FeedActivity extends AppCompatActivity {
         messageRequestsRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         // Adapter'ı ayarla (messageRequestArrayList daha önce doldurulmuş olmalı)
-        if (messageRequestArrayList.size() > 0 && user != null) {
+        if (messageRequestArrayList.size() > 0 && user != null) {/////
             adapter = new MessageRequestsAdapter(messageRequestArrayList, this, user.getUserId(), user.getUserName(), user.getUserProfile());
             messageRequestsRecyclerView.setAdapter(adapter);
         }

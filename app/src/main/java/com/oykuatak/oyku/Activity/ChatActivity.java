@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -36,6 +37,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -74,6 +76,8 @@ public class ChatActivity extends AppCompatActivity {
         targetProfileUrl = incomingIntent.getStringExtra("targetProfile");
         chatList = new ArrayList<>();
 
+
+
     }
 
     @Override
@@ -90,46 +94,67 @@ public class ChatActivity extends AppCompatActivity {
                     Toast.makeText(ChatActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (value!=null && value.exists()){
-                    targetName.setText(targetUser.getUserName());
-                    if (targetUser!=null){
+                if (value != null && value.exists()) {
+                    targetUser = value.toObject(User.class); // targetUser burada atanıyor
+                    if (targetUser != null) {
                         targetName.setText(targetUser.getUserName());
-                        if (targetUser.getUserProfile().equals("default"))
+                        if ("default".equals(targetUser.getUserProfile())) {
                             targetProfile.setImageResource(R.mipmap.ic_launcher);
-                        else Picasso.get().load(targetUser.getUserProfile()).resize(76,76).into(targetProfile);
+                        } else {
+                            Picasso.get().load(targetUser.getUserProfile()).resize(76, 76).into(targetProfile);
+                        }
+                    } else {
+                        Toast.makeText(ChatActivity.this, "Kullanıcı bilgisi alınamadı.", Toast.LENGTH_SHORT).show();
                     }
                 }
+
             }
         });
 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
 
+        chatAdapter = new ChatAdapter(chatList,ChatActivity.this,mUser.getUid(),targetProfileUrl);
+        recyclerView.setAdapter(chatAdapter);
 
         chatQuery = firestore.collection("ChatChannels").document(channelId).collection("Messages")
-                .orderBy("mesajTarihi", Query.Direction.ASCENDING);
+                .orderBy("MesajTarihi", Query.Direction.ASCENDING);
         chatQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error!=null){
-                    Toast.makeText(ChatActivity.this,error.getMessage(),Toast.LENGTH_SHORT).show();
+                if (error != null) {
+                    Toast.makeText(ChatActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("ChatActivity", "Hata: " + error.getMessage());
                     return;
                 }
 
-                if (value!=null){
+                if (value != null) {
                     chatList.clear();
-                    for (DocumentSnapshot snapshot: value.getDocuments()){
-                        chat = snapshot.toObject(Chat.class);
+                    Log.d("ChatActivity", "Mesaj sayısı: " + value.getDocuments().size());
+                    for (DocumentSnapshot snapshot : value.getDocuments()) {
+                        Map<String, Object> data = snapshot.getData(); // Document içindeki veriyi Map olarak al
 
-                        assert chat !=null;
-                        chatList.add(chat);
+                        if (data != null) {
+                            // Map'ten Chat objesine dönüştür
+                            String messageIcerigi = (String) data.get("mesajIcerigi");
+                            String gonderen = (String) data.get("gonderen");
+                            String alici = (String) data.get("alici");
+                            String docId = (String) data.get("docId");
+
+                            Chat chat = new Chat(messageIcerigi, gonderen, alici, docId);
+                            chatList.add(chat);
+
+                            // Mesaj içeriğini logla
+                            Log.d("ChatActivity", "Mesaj: " + messageIcerigi);
+                        }
                     }
-                    chatAdapter = new ChatAdapter(chatList,ChatActivity.this,mUser.getUid(),targetProfileUrl);
-                    recyclerView.setAdapter(chatAdapter);
+                    chatAdapter.notifyDataSetChanged(); // Yalnızca veri setini güncelle
+                } else {
+                    Log.d("ChatActivity", "Gelen veriler boş.");
                 }
-
             }
         });
+
 
 
     }
@@ -144,7 +169,7 @@ public class ChatActivity extends AppCompatActivity {
             mData.put("MesajTarihi", FieldValue.serverTimestamp());
             mData.put("docId",messageDocId);
 
-            firestore.collection("ChatChannel").document(channelId).collection("Messages").document(messageDocId)
+            firestore.collection("ChatChannels").document(channelId).collection("Messages").document(messageDocId)
                     .set(mData).addOnCompleteListener(ChatActivity.this, new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
