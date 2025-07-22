@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/bar"
+    android:background="@android:color/transparent"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
+
+    <!-- Ortadaki başlık -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Oyku"
+        android:layout_gravity="center"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:textSize="25sp" />
+
+    <!-- Sağ tarafa yerleştirilen bildirim ve sayı -->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar_layout_relaNoti"
+        android:layout_gravity="end"
+        android:visibility="invisible">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_noti"
+            android:id="@+id/toolbar_imgNotiRight" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:id="@+id/toolbar_notiNumber"
+            android:layout_alignRight="@+id/toolbar_imgNotiRight"
+            android:textColor="#CD0808"
+            android:layout_marginRight="5dp"
+            android:layout_alignBottom="@+id/toolbar_imgNotiRight" />
+    </RelativeLayout>
+
+</androidx.appcompat.widget.Toolbar>

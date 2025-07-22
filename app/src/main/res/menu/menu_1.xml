@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/feed"
+        android:icon="@drawable/ic_feed"
+        android:title="Ana Sayfa">
+    </item>
+
+    <item
+        android:id="@+id/profile"
+        android:icon="@drawable/ic_person"
+        android:title="Profil">
+    </item>
+
+    <item
+        android:id="@+id/people"
+        android:icon="@drawable/ic_people"
+        android:title="Kullanıcılar">
+    </item>
+    <item
+        android:id="@+id/message"
+        android:icon="@drawable/ic_message"
+        android:title="Mesajlar">
+    </item>
+</menu>
