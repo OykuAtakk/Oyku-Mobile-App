@@ -32,7 +32,6 @@ Java • ViewBinding • Material Components
 
 <summary>📁 Klasör Yapısı (özet)</summary>
 
-```text
 app/
  └─ src/main/java/com/oykuatak/oyku/
      ├─ activity/            # Activity sınıfları
@@ -58,28 +57,31 @@ app/
          └─ User.java
 
 ---
+
 ## ⚙️ Kurulum
 
 1. Depoyu klonlayın:
-
-   ```bash
    git clone https://github.com/<kullanıcı-adı>/oyku.git
    cd oyku
-Android Studio Arctic Fox (veya üzeri) ile projeyi açın.
+2. Android Studio ile projeyi açın.
 
-Firebase yapılandırması
+3. Firebase yapılandırması:
 
-Firebase Console’da yeni bir proje oluşturun.
+4. Firebase Console’da yeni bir proje oluşturun.
 
 Android paket adı: com.oykuatak.oyku
 
-İndirilen google-services.json dosyasını app/ klasörüne kopyalayın.
+google-services.json dosyasını app/ klasörüne kopyalayın.
 
-Authentication → Sign‑in Method bölümünde “E‑posta/Şifre” yöntemini etkinleştirin.
+5. Authentication → Sign-in Method altında “E‑posta/Şifre” yöntemini etkinleştirin.
 
-Cloud Firestore ve Storage’ı etkinleştirin.
+6. Cloud Firestore ve Cloud Storage’ı etkinleştirin.
 
-Gradle’ı senkronize edin ve projeyi derleyin.
+7. SHA‑1 / SHA‑256 imzalarını Firebase’e ekleyin (./gradlew signingReport komutu ile bulunabilir).
+
+8. Gradle yapılandırmasını senkronize edin ve projeyi çalıştırın.
+
+
 
 ## ▶️ Projeyi Çalıştırma
 
