@@ -58,6 +58,7 @@ app/
          ├─ MessageRequest.java
          └─ User.java
 </details>
+
 ---
 ## ⚙️ Kurulum
 
