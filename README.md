@@ -30,7 +30,6 @@ Java • ViewBinding • Material Components
 | **Görsel Yükleme** | Glide (Feed) · Picasso (Chat & Profil) |
 | **Diğer** | CircleImageView · BottomNavigationView · DialogFragment |
 
-<details>
 <summary>📁 Klasör Yapısı (Özet)</summary>
 
 ```text
@@ -57,7 +56,6 @@ app/
          ├─ Chat.java
          ├─ MessageRequest.java
          └─ User.java
-</details>
 ```
 ---
 
