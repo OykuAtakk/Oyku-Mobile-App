@@ -57,7 +57,7 @@ app/
          ├─ Chat.java
          ├─ MessageRequest.java
          └─ User.java
-```
+</details> <!--
 ---
 ## ⚙️ Kurulum
 
